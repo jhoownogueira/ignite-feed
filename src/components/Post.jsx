@@ -1,10 +1,18 @@
 import { format, formatDistanceToNow } from 'date-fns';
 import ptBr from 'date-fns/locale/pt-BR';
+import { useState } from 'react';
 import { Avatar } from './Avatar';
 import { Comment } from './Comment';
 import styles from './Post.module.css';
 
+
 export function Post({ author, publishedAt, content }) {
+    const [ comments, setComments ] = useState([
+        'Post muito legal'
+    ]);
+
+    const [newCommentText, setNewcommentText] = useState('');
+
     const publishedDateFormated = format(publishedAt, "d 'de' LLLL 'às' HH:mm'h'", {
         locale: ptBr,
     });
@@ -13,6 +21,17 @@ export function Post({ author, publishedAt, content }) {
         locale: ptBr,
         addSuffix: true,
     })
+
+    function handleCreateNewComment(event) {
+        event.preventDefault();
+
+        setComments([...comments, newCommentText]);
+        setNewcommentText('');
+    }
+
+    function handleNewCommentChange(event) {
+        setNewcommentText(event.target.value);
+    }
 
     return (
         <article className={styles.post}>
@@ -41,19 +60,22 @@ export function Post({ author, publishedAt, content }) {
                     })}
             </div>
 
-            <form className={styles.commentForm}>
+            <form onSubmit={handleCreateNewComment} className={styles.commentForm}>
                 <strong>Deixe seu feedback</strong>
                 <textarea 
+                    name="comment"
                     placeholder='Deixe um comentário'
+                    onChange={handleNewCommentChange}
+                    value={newCommentText}
                 />
                 <footer>
                     <button type='submit'>Publicar</button>
                 </footer>
             </form>
             <div className={styles.commentList}>
-                <Comment />
-                <Comment />
-                <Comment />
+                {comments.map(comment => {
+                    return <Comment content={comment} />
+                })}
             </div>
         </article>
     );
